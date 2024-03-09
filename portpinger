@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Solicita ao usuário o endereço IP de destino
+
+read -p "Digite os endereços IPs de destino: " ip_destino
+
+read -p "Digite as portas que quer pingar, exemplo :22,23,80,443:" portas
+
+read -p "Esta ativando um malware de porta? 1 - Sim 2 -Nao:" ativado
+
+
+# Realiza um teste com hping3 nas portas especificadas em cada ip
+
+echo "Realizando teste nas portas $portas em $ip_destino..."
+        if [ "$ativado" == 1 ]
+                then
+                        read  -p "Em qual socket? informe apenas a porta" sckt
+        fi
+for ip in ${ip_destino};
+
+do 
+
+        for p in ${portas};
+
+        do
+
+        # Testa as portas
+
+        sudo hping3 -c 1 -V -S -p $p $ip &> /dev/null
+        echo "Porta $p testada"
+
+        done
+        
+        #acessando o malware de portas
+        wget -t 1 -T 2 $ip:$sckt
+        #fi
+        cat index.html | grep -v "<br>" | grep -v "<hr>"
+
+        rm index.html
+
+        echo "Teste concluído."  
+
+done
+
