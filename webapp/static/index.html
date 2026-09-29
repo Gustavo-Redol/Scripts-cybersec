@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security Toolkit Dashboard</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #121a24;
+    --panel-2: #0e1520;
+    --border: #1e2a38;
+    --text: #dbe4ee;
+    --muted: #7d8ea3;
+    --accent: #38bdf8;
+    --accent-2: #22d3ee;
+    --green: #34d399;
+    --red: #f87171;
+    --amber: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    padding: 40px 32px 24px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #101826 0%, var(--bg) 100%);
+  }
+  header .wrap { max-width: 1200px; margin: 0 auto; }
+  h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  h1 span { color: var(--accent); }
+  header p {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+  .stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .stats b { color: var(--text); font-size: 15px; }
+
+  .toolbar {
+    max-width: 1200px;
+    margin: 24px auto 0;
+    padding: 0 32px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color .15s, color .15s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--text); }
+  .chip.active {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 32px 64px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: #2c3e52; transform: translateY(-2px); }
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .card h2 {
+    font-size: 16px;
+    font-weight: 650;
+  }
+  .file-name {
+    font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+    font-size: 12px;
+    color: var(--accent-2);
+  }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+  }
+  .badge.lang-bash   { background: rgba(251,191,36,.12);  color: var(--amber); }
+  .badge.lang-python { background: rgba(52,211,153,.12);  color: var(--green); }
+  .badge.lang-c      { background: rgba(248,113,113,.12); color: var(--red); }
+  .badge.category    { background: rgba(56,189,248,.12);  color: var(--accent); }
+  .card p.desc {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #5b6b7e;
+    font-weight: 700;
+  }
+  .deps { display: flex; gap: 5px; flex-wrap: wrap; }
+  .dep {
+    font-size: 11.5px;
+    padding: 2px 9px;
+    border-radius: 6px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .usage {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    background: #0a1017;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #a5f3fc;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .note { font-size: 12px; color: #66788e; line-height: 1.5; }
+  footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px 40px;
+    color: #4a5a6e;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  footer b { color: var(--muted); }
+  .loading { color: var(--muted); font-size: 14px; padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🛡️ Security <span>Toolkit</span> Dashboard</h1>
+    <p>A collection of command-line security &amp; reconnaissance tools — port scanning, directory enumeration, OSINT lookups and network analysis. This dashboard documents each tool and its requirements.</p>
+    <div class="stats">
+      <div><b id="stat-total">–</b> tools</div>
+      <div><b id="stat-bash">–</b> bash</div>
+      <div><b id="stat-python">–</b> python</div>
+      <div><b id="stat-c">–</b> c</div>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar" id="toolbar"></div>
+
+<main>
+  <div class="loading" id="loading">Loading tools…</div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <b>Note:</b> These tools are intended for use in controlled lab environments (e.g. local VMs like TryHackMe/HackTheBox targets) against systems you have explicit permission to test. Some tools additionally require a Shodan API key to function.
+</footer>
+
+<script>
+  let allTools = [];
+  let activeFilter = 'all';
+
+  function render() {
+    const grid = document.getElementById('grid');
+    const tools = allTools.filter(t => activeFilter === 'all' || t.language === activeFilter);
+    grid.innerHTML = tools.map(t => `
+      <div class="card">
+        <div class="card-head">
+          <h2>${t.name}</h2>
+          <div class="badges">
+            <span class="badge category">${t.category}</span>
+            <span class="badge lang-${t.language}">${t.language}</span>
+          </div>
+        </div>
+        <div class="file-name">${t.file}${t.exists ? '' : ' (missing)'}</div>
+        <p class="desc">${t.description}</p>
+        <div>
+          <div class="section-label">Dependencies</div>
+          <div class="deps">${t.dependencies.map(d => `<span class="dep">${d}</span>`).join('')}</div>
+        </div>
+        <div>
+          <div class="section-label">Usage</div>
+          <div class="usage">${t.usage}</div>
+        </div>
+        <div class="note">${t.notes}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderToolbar() {
+    const counts = { all: allTools.length, bash: 0, python: 0, c: 0 };
+    allTools.forEach(t => { if (counts[t.language] !== undefined) counts[t.language]++; });
+    document.getElementById('stat-total').textContent = allTools.length;
+    document.getElementById('stat-bash').textContent = counts.bash;
+    document.getElementById('stat-python').textContent = counts.python;
+    document.getElementById('stat-c').textContent = counts.c;
+
+    const labels = { all: 'All', bash: 'Bash', python: 'Python', c: 'C' };
+    const bar = document.getElementById('toolbar');
+    bar.innerHTML = Object.keys(labels).map(k =>
+      `<div class="chip ${k === activeFilter ? 'active' : ''}" data-filter="${k}">${labels[k]} (${counts[k]})</div>`
+    ).join('');
+    bar.querySelectorAll('.chip').forEach(chip => {
+      chip.onclick = () => { activeFilter = chip.dataset.filter; renderToolbar(); render(); };
+    });
+  }
+
+  fetch('/api/tools')
+    .then(r => r.json())
+    .then(data => {
+      allTools = data.tools;
+      document.getElementById('loading').style.display = 'none';
+      renderToolbar();
+      render();
+    })
+    .catch(() => {
+      document.getElementById('loading').textContent = 'Failed to load tools — is the API running?';
+    });
+</script>
+</body>
+</html>
